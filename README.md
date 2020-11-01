@@ -1,1 +1,1 @@
-Initiation work to PhD. Theme of "High Efficient Neural Architecture search". Its core combined method enas, proxylessnas and binary nn methods. 
+Initiation work postgraduate. Theme of "High efficient neural architecture search generator". Its core combined method enas, proxylessnas and binary nn methods. 
