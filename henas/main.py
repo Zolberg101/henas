@@ -15,6 +15,7 @@ logger = logging.getLogger('nni_proxylessnas')
 if __name__ == "__main__":
     parser = ArgumentParser("proxylessnas")
     # configurations of the model
+    parser.add_argument("--type_model", default='mobile', type=str)
     parser.add_argument("--n_cell_stages", default='4,4,4,4,4,1', type=str)
     parser.add_argument("--stride_stages", default='2,2,2,1,2,1', type=str)
     parser.add_argument("--width_stages", default='24,40,80,96,192,320', type=str)
@@ -43,21 +44,32 @@ if __name__ == "__main__":
         logger.error('When --train_mode is retrain, --exported_arch_path must be specified.')
         sys.exit(-1)
 
-    model = SearchMobileNet(width_stages=[int(i) for i in args.width_stages.split(',')],
-                            n_cell_stages=[int(i) for i in args.n_cell_stages.split(',')],
-                            stride_stages=[int(i) for i in args.stride_stages.split(',')],
-                            n_classes=1000,
-                            dropout_rate=args.dropout_rate,
-                            bn_param=(args.bn_momentum, args.bn_eps))
-    logger.info('SearchMobileNet model create done')
-    model.init_model()
-    logger.info('SearchMobileNet model init done')
-
+    if args.type_model == 'mobile':
+        model = SearchMobileNet(width_stages=[int(i) for i in args.width_stages.split(',')],
+                                n_cell_stages=[int(i) for i in args.n_cell_stages.split(',')],
+                                stride_stages=[int(i) for i in args.stride_stages.split(',')],
+                                n_classes=1000,
+                                dropout_rate=args.dropout_rate,
+                                bn_param=(args.bn_momentum, args.bn_eps))
+        logger.info('SearchMobileNet model create done')
+        model.init_model()
+        logger.info('SearchMobileNet model init done')
+    elif args.type_model == 'full':
+        model = SearchFullNet(width_stages=[int(i) for i in args.width_stages.split(',')],
+                                n_cell_stages=[int(i) for i in args.n_cell_stages.split(',')],
+                                stride_stages=[int(i) for i in args.stride_stages.split(',')],
+                                n_classes=1000,
+                                dropout_rate=args.dropout_rate,
+                                bn_param=(args.bn_momentum, args.bn_eps))
+        logger.info('SearchFulleNet model create done')
+        model.init_model()
+        logger.info('SearchFulleNet model init done')
     # move network to GPU if available
     if torch.cuda.is_available():
         device = torch.device('cuda')
     else:
         device = torch.device('cpu')
+        # device = torch.device('tpu')
 
     logger.info('Creating data provider...')
     data_provider = datasets.ImagenetDataProvider(save_path=args.data_path,
